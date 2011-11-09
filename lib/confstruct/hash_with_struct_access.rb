@@ -1,4 +1,5 @@
 require 'delegate'
+require 'confstruct/utils'
 
 ##############
 # Confstruct::HashWithStructAccess is a Hash wrapper that provides deep struct access
@@ -109,15 +110,9 @@ module Confstruct
         end
         
         if result.is_a?(HashWithStructAccess) and block_given?
-          if block.arity == -1
-            result.instance_eval(&block)
-          else
-            yield result
-          end
-        end
-        
-        if result.is_a?(Proc) 
-          result.call(self)
+          eval_or_yield result, &block
+        elsif result.is_a?(Proc) 
+          eval_or_yield self, &result
         else
           result
         end

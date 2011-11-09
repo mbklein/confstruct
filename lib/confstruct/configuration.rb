@@ -8,13 +8,7 @@ module Confstruct
       @default_values = defaults
       if @default_values.nil?
         @default_values = HashWithStructAccess.new({})
-        if block_given?
-          if block.arity == -1
-            @default_values.instance_eval(&block)
-          else
-            yield @default_values
-          end
-        end
+        eval_or_yield @default_values, &block
       end
     end
     klazz
@@ -43,12 +37,11 @@ module Confstruct
       end
       
       if block_given?
-        if block.arity == -1
-          self.instance_eval(&block)
-        else
-          yield self
+        eval_or_yield self, &block
+        if self[:after_config!].is_a?(Proc)
+          p = self[:after_config!]
+          eval_or_yield self, &p
         end
-        self[:after_config!].call if self[:after_config!].is_a?(Proc)
       end
       self
     end
