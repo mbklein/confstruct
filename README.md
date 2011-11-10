@@ -119,7 +119,18 @@ define read-only, dynamic configuration attributes
      => {:project=>"confstruct", :github=>{:branch=>"master", :url=>"http://www.github.com/mbklein/confstruct"}} 
     config.github.url
      => "http://www.github.com/mbklein/confstruct"
-        
+
+### Notes
+
+* Confstruct will attempt to use ordered hashes internally when available.
+  * In Ruby 1.9 and above, this is automatic.
+  * In Rubies earlier than 1.9, Confstruct will try to require and use ActiveSupport::OrderedHash, 
+    falling back to a regular Hash if necessary. The class/instance method `ordered?` can be used 
+    to determine if the hash ordered or not.
+* In order to support struct access, all hash keys are converted to symbols, and are accessible
+  both as strings and symbols (like a `HashWithIndifferentAccess`). In other words, config['foo'] 
+  and config[:foo] refer to the same value.
+  
 ## Release History
 
 ## Contributing to confstruct

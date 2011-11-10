@@ -2,16 +2,30 @@ require 'delegate'
 require 'confstruct/utils'
 
 module Confstruct
-  class HashWithStructAccess < DelegateClass(Hash)
-    
+  if ::RUBY_VERSION < '1.9'
+    begin
+      require 'active_support/ordered_hash'
+      class HashWithStructAccess < DelegateClass(ActiveSupport::OrderedHash); @@ordered = true; @@hash_class = ActiveSupport::OrderedHash; end
+    rescue LoadError, NameError
+      class HashWithStructAccess < DelegateClass(Hash); @@ordered = false; @@hash_class = Hash; end
+    end
+  else
+    class HashWithStructAccess < DelegateClass(Hash); @@ordered = true; @@hash_class = Hash; end
+  end
+  
+  class HashWithStructAccess
     class << self
       def from_hash hash
         symbolized_hash = symbolize_hash hash
         self.new(symbolized_hash)
       end
 
+      def ordered?
+        @@ordered
+      end
+      
       def symbolize_hash hash
-        hash.inject({}) do |h,(k,v)| 
+        hash.inject(@@hash_class.new) do |h,(k,v)| 
           h[symbolize k] = v.is_a?(Hash) ? symbolize_hash(v) : v
           h
         end
@@ -22,7 +36,7 @@ module Confstruct
       end
     end
     
-    def initialize hash = {}
+    def initialize hash = @@hash_class.new
       super(hash)
     end
 
@@ -36,15 +50,16 @@ module Confstruct
     
     def []= key,value
       k = symbolize(key)
-      if value.is_a?(Hash) and self[k].is_a?(Hash)
-        self[k].replace(value)
+      v = (value.is_a?(Hash) and not value.is_a?(HashWithStructAccess)) ? HashWithStructAccess.new(value) : value
+      if v.is_a?(Hash) and self[k].is_a?(Hash)
+        self[k].replace(v)
       else
-        result = super(k, value)
+        super(k, v)
       end
     end
 
     def deep_copy
-      result = self.class.new({})
+      result = self.class.new(@@hash_class.new)
       self.each_pair do |k,v|
         if v.respond_to?(:deep_copy)
           result[k] = v.deep_copy
@@ -93,7 +108,7 @@ module Confstruct
       else
         result = self[name]
         if result.nil? and block_given?
-          result = self[name] = HashWithStructAccess.new({})
+          result = self[name] = HashWithStructAccess.new(@@hash_class.new)
         end
 
         if result.is_a?(HashWithStructAccess) and block_given?
@@ -114,6 +129,10 @@ module Confstruct
         end
       end
       super + key_methods.compact.flatten
+    end
+    
+    def ordered?
+      self.class.ordered?
     end
     
     def respond_to? arg

@@ -10,6 +10,11 @@ describe Confstruct::HashWithStructAccess do
     hwsa.should == {}
   end
   
+  it "should respond to #ordered?" do
+    hwsa = Confstruct::HashWithStructAccess.new
+    [true,false].should include(hwsa.ordered?)
+  end
+  
   context "data manipulation" do
     before :all do
       @hash = { 
