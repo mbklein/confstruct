@@ -22,7 +22,10 @@ module Confstruct
     def initialize hash=nil, &block
       super(hash || {})
       initialize_default_values! if hash.nil?
-      configure &block
+      configure &block if block_given?
+    end
+    
+    def after_config! obj
     end
     
     def initialize_default_values!
@@ -35,24 +38,15 @@ module Confstruct
       if args[0].respond_to?(:each_pair)
         self.deep_merge!(args[0])
       end
-      
-      if block_given?
-        eval_or_yield self, &block
-        if self[:after_config!].is_a?(Proc)
-          p = self[:after_config!]
-          eval_or_yield self, &p
-        end
-      end
+      eval_or_yield self, &block
+      after_config! self
       self
     end
-  
-    def method_missing sym, *args, &block
-      super(sym, *args) { |x| x.configure(&block) }
-    end
-    
-    def push! &block
+
+    def push! *args, &block
       (self[:@stash] ||= []).push(self.deep_copy)
-      configure &block if block_given?
+      configure *args, &block if args.length > 0 or block_given?
+      self
     end
     
     def pop!
@@ -64,7 +58,9 @@ module Confstruct
         self.clear
         self[:@stash] = s unless s.empty?
         self.merge! obj
+        after_config! self
       end
+      self
     end
     
   end

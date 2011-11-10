@@ -66,18 +66,10 @@ off the inner call.)
 
 You can even
 
-    config.project 'other-project'
-    config.github.configure do
-      url 'http://www.github.com/somefork/other-project'
-      branch 'pre-1.0'
-    end
-  
-or
-
     config.project = 'other-project'
     config.github = { :url => 'http://www.github.com/somefork/other-project', :branch => 'pre-1.0' }
 
-The configure method will even do a deep merge for you if you pass it a hash or hash-like object
+The configure method will even a deep merge for you if you pass it a hash or hash-like object
 (anything that responds to `each_pair`)
 
     config.configure({:project => 'other-project', :github => {:url => 'http://www.github.com/somefork/other-project', :branch => 'pre-1.0'}})
@@ -115,14 +107,6 @@ define read-only, dynamic configuration attributes
     config.github.client 
      => #<RestClient::Resource:0x1035d5bc0 @options={}, @url="http://www.github.com/somefork/other-project", @block=nil>
 
-If a config block has a proc named `after_config!`, it will be called after that block
-is configured.
-
-    config.github[:after_config!] = lambda { puts "Finished github configuration!" }
-    config.github { url 'http://www.github.com/somefork/other-project' }
-    Finished github configuration!
-     => {:branch=>"master", :url=>"http://www.github.com/somefork/other-project"}
-     
 `push!` and `pop!` methods allow you to temporarily override some or all of your configuration values
 
     config.github.url

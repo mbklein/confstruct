@@ -1,45 +1,24 @@
 require 'delegate'
 require 'confstruct/utils'
 
-##############
-# Confstruct::HashWithStructAccess is a Hash wrapper that provides deep struct access
-# 
-# Initialize from a hash:
-# h = Confstruct::HashWithStructAccess.from_hash({ :one => 1, :two => {:three => 3, :four => 4} })
-# 
-# Access it like a hash or a struct, all the way down:
-# h[:one]
-# => 1
-# Or a struct:
-# h.one
-# => 1
-# h.two.respond_to?(:three)
-# => true
-# h.two.three
-# => 3
-# h[:two][:three]
-# => 3
-# h.two.five = 5
-# => 5
-# 
-# Yield sub-structs:
-# h.two { |t| t.three = 'three' }
-# 
-# h
-# => {:one=>1, :two=>{:three=>"three", :four=>4, :five=>5}}
-#############
-
 module Confstruct
   class HashWithStructAccess < DelegateClass(Hash)
     
     class << self
       def from_hash hash
-        symbolized_hash = hash.inject({}) { |h,(k,v)| h[symbolize k] = v; h }
+        symbolized_hash = symbolize_hash hash
         self.new(symbolized_hash)
       end
 
+      def symbolize_hash hash
+        hash.inject({}) do |h,(k,v)| 
+          h[symbolize k] = v.is_a?(Hash) ? symbolize_hash(v) : v
+          h
+        end
+      end
+      
       def symbolize key
-        (key.to_s.gsub(/\s+/,'_').to_sym rescue key) || key
+        (key.to_s.gsub(/\s+/,'_').to_sym rescue key.to_sym) || key
       end
     end
     
@@ -49,8 +28,8 @@ module Confstruct
 
     def [] key
       result = super(symbolize(key))
-      if result.is_a?(Hash) and not result.is_a?(self.class)
-        result = self.class.new(result)
+      if result.is_a?(Hash) and not result.is_a?(HashWithStructAccess)
+        result = HashWithStructAccess.new(result)
       end
       result
     end
@@ -64,10 +43,6 @@ module Confstruct
       end
     end
 
-    def is_a? klazz
-      klazz == Hash or super
-    end
-    
     def deep_copy
       result = self.class.new({})
       self.each_pair do |k,v|
@@ -94,30 +69,39 @@ module Confstruct
       "{#{r.compact.join(', ')}}"
     end
     
+    def is_a? klazz
+      klazz == Hash or super
+    end
+    
     alias_method :_keys, :keys
     def keys
       _keys.reject { |k| self[k].is_a?(Proc) or k.to_s =~ /^@/ }
     end
     
+    def values
+      keys.collect { |k| self[k] }
+    end
+    
     def method_missing sym, *args, &block
-      (name, setter) = sym.to_s.scan(/^(.+?)(=)?$/).flatten
-      setter = args.length > 0
-      accessor = setter ? args.length == 1 : args.length == 0
-      if accessor
-        result = setter ? self[name.to_sym] = args[0] : self[name.to_sym]
-        if result.nil? and args.length == 0 and block_given?
-          result = self[name.to_sym] = self.class.new
+      if args.length > 1
+        super(sym,*args,&block)
+      end
+      
+      name = sym.to_s.chomp('=').to_sym
+      if args.length == 1
+        self[name] = args[0]
+      else
+        result = self[name]
+        if result.nil? and block_given?
+          result = self[name] = HashWithStructAccess.new({})
         end
-        
+
         if result.is_a?(HashWithStructAccess) and block_given?
           eval_or_yield result, &block
         elsif result.is_a?(Proc) 
-          eval_or_yield self, &result
-        else
-          result
+          result = eval_or_yield self, &result
         end
-      else
-        super(sym,*args,&block)
+        result
       end
     end
     
