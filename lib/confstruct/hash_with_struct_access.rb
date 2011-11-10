@@ -14,6 +14,9 @@ module Confstruct
   end
   
   class HashWithStructAccess
+    attr_accessor :default_values
+    @default_values = {}
+    
     class << self
       def from_hash hash
         symbolized_hash = symbolize_hash hash
@@ -85,7 +88,7 @@ module Confstruct
     end
     
     def is_a? klazz
-      klazz == Hash or super
+      klazz == @@hash_class or super
     end
     
     alias_method :_keys, :keys

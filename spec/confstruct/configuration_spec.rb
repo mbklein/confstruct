@@ -10,7 +10,7 @@ describe Confstruct::Configuration do
     conf.should == {}
   end
 
-  context "subclass" do
+  context "default values" do
     before :all do
       @defaults = { 
         :project => 'confstruct', 
@@ -19,32 +19,27 @@ describe Confstruct::Configuration do
           :branch => 'master'
         }
       }
-      @test_config_class = Confstruct::ConfigClass(@defaults)
     end
     
     before :each do
-      @config = @test_config_class.new
+      @config = Confstruct::Configuration.new(@defaults)
     end
     
     it "should have the correct defaults" do
-      @test_config_class.default_values.should == @defaults
-    end
-    
-    it "should instantiate with the correct default values" do
+      @config.default_values.should == @defaults
       @config.should == @defaults
-      @config.object_id.should_not == @defaults.object_id
     end
     
     it "can be defined in block mode" do
-      block_config_class = Confstruct.ConfigClass do
+      config = Confstruct::Configuration.new do
         project 'confstruct'
         github do
           url 'http://www.github.com/mbklein/confstruct'
           branch 'master'
         end
       end
-      block_config_class.default_values.should == @defaults
-      block_config_class.new.should == @defaults
+      config.default_values.should == @defaults
+      config.should == @defaults
     end
   end
   
@@ -65,12 +60,10 @@ describe Confstruct::Configuration do
           :branch => 'master'
         }
       }
-      
-      TestConfigClass = Confstruct::ConfigClass(@defaults)
     end
 
     before :each do
-      @config = TestConfigClass.new
+      @config = Confstruct::Configuration.new(@defaults)
     end
     
     it "should deep merge a hash" do
@@ -105,6 +98,14 @@ describe Confstruct::Configuration do
       lambda { @config.pop! }.should raise_error(IndexError)
     end
 
+    it "should #reset_defaults!" do
+      @config.project = 'other-project'
+      @config.github.url = 'http://www.github.com/mbklein/other-project'
+      @config.should == @configured
+      @config.reset_defaults!
+      @config.should == @defaults
+    end
+    
     it "should call #after_config! when configuration is complete" do
       postconfigurator = RSpec::Mocks::Mock.new('after_config!')
       postconfigurator.should_receive(:configured!).once.with(@config)

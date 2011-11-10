@@ -8,34 +8,28 @@ way, while keeping things simple and intuitive.
 
 First, either create an empty `ConfStruct::Configuration` object:
 
-    config = Confstruct::Confguration.new
+    config = Confstruct::Configuration.new
     
-Or use `ConfigClass` to define a subclass with default values:
+Or with some default values:
 
-    MyConfigClass = Confstruct::ConfigClass({ 
+    config = Confstruct::Configuration.new({ 
       :project => 'confstruct', 
       :github => { 
         :url => 'http://www.github.com/mbklein/confstruct',
         :branch => 'master'
       }
     })
-    config = MyConfigClass.new
 
 The above can also be done in block form:
 
-    # Confstruct::ConfigClass with no parentheses will be treated as a
-    # constant, not a method. In block form, use either Confstruct.ConfigClass
-    # or Confstruct::ConfigClass()
-    
-    MyConfigClass = Confstruct.ConfigClass do 
+    config = Confstruct::Configuration.new do 
       project 'confstruct'
       github do
         url 'http://www.github.com/mbklein/confstruct'
         branch 'master'
       end
     end
-    config = MyConfigClass.new
-
+    
 There are many ways to configure the resulting `config` object...
 
 The Struct-like way
