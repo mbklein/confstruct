@@ -24,19 +24,17 @@ module Confstruct
     end
 
     def push! *args, &block
-      (self[:@stash] ||= []).push(self.deep_copy)
+      _stash.push(self.deep_copy)
       configure *args, &block if args.length > 0 or block_given?
       self
     end
     
     def pop!
-      s = self[:@stash] 
-      if s.nil? or s.empty?
+      if _stash.empty?
         raise IndexError, "Stash is empty"
       else
-        obj = s.pop
+        obj = _stash.pop
         self.clear
-        self[:@stash] = s unless s.empty?
         self.merge! obj
         after_config! self
       end
@@ -46,6 +44,10 @@ module Confstruct
     def reset_defaults!
       self.replace(default_values.deep_copy)
     end
-    
+
+    protected
+    def _stash
+      @stash ||= []
+    end
   end
 end
