@@ -30,15 +30,15 @@ The above can also be done in block form:
       end
     end
     
-There are many ways to configure the resulting `config` object...
+There are many ways to access and configure the resulting `config` object...
 
-The Struct-like way
+As a struct...
 
     config.project = 'other-project'
     config.github.url = 'http://www.github.com/somefork/other-project'
     config.github.branch = 'pre-1.0'
   
-The block-oriented way
+As a block...
 
     config.configure do
       project 'other-project'
@@ -46,6 +46,15 @@ The block-oriented way
       github.branch 'pre-1.0'
     end
 
+As a hash...
+
+    config[:github][:url] = 'http://www.github.com/somefork/other-project'
+    
+Or even as a crazy struct/hash hybrid...
+
+    config.github[:url] = 'http://www.github.com/somefork/other-project'
+    config[:github].branch = 'pre-1.0'
+    
 Each sub-hash/struct is a configuration object in its own right, and can be
 treated as such. (Note the ability to leave the `configure` method
 off the inner call.)
