@@ -89,10 +89,10 @@ hash or a struct:
 
 ### Advanced Tips & Tricks
 
-Any configuration value of class `Proc` will be evaluated on access, allowing you to
+Any configuration value of class `Confstruct::Deferred` will be evaluated on access, allowing you to
 define read-only, dynamic configuration attributes
 
-    config[:github][:client] = Proc.new { |c| RestClient::Resource.new(c.url) }
+    config[:github][:client] = Confstruct::Deferred.new { |c| RestClient::Resource.new(c.url) }
      => #<Proc:0x00000001035eb240>
     config.github.client 
      => #<RestClient::Resource:0x1035e3b30 @options={}, @url="http://www.github.com/mbklein/confstruct", @block=nil> 
@@ -100,6 +100,14 @@ define read-only, dynamic configuration attributes
      => "http://www.github.com/somefork/other-project" 
     config.github.client 
      => #<RestClient::Resource:0x1035d5bc0 @options={}, @url="http://www.github.com/somefork/other-project", @block=nil>
+     
+As a convenience, `Confstruct.deferred(&block)` and `Confstruct::HashWithStructAccess#deferred!(&block)`
+act like `lambda`, making the following two assignments equivalent to the above:
+
+    config.github.client = Confstruct.deferred { |c| RestClient::Resource.new(c.url) }
+    config.github do
+      client deferred! { |c| RestClient::Resource.new(c.url) }
+    end
 
 `push!` and `pop!` methods allow you to temporarily override some or all of your configuration values
 

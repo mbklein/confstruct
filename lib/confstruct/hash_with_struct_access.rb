@@ -2,6 +2,9 @@ require 'delegate'
 require 'confstruct/utils'
 
 module Confstruct
+  class Deferred < Proc; end
+  def self.deferred &block; Deferred.new(&block); end
+
   if ::RUBY_VERSION < '1.9'
     begin
       require 'active_support/ordered_hash'
@@ -47,6 +50,8 @@ module Confstruct
       result = super(symbolize(key))
       if result.is_a?(Hash) and not result.is_a?(HashWithStructAccess)
         result = HashWithStructAccess.new(result)
+      elsif result.is_a?(Deferred)
+        result = eval_or_yield self, &result
       end
       result
     end
@@ -82,18 +87,17 @@ module Confstruct
       do_deep_merge! hash, self
     end
 
+    def deferred! &block
+      Deferred.new(&block)
+    end
+    
     def inspect
-      r = self.keys.collect { |k| self[k].is_a?(Proc) or k.to_s =~ /^@/ ? nil : "#{k.inspect}=>#{self[k].inspect}" }
+      r = self.keys.collect { |k| "#{k.inspect}=>#{self[k].inspect}" }
       "{#{r.compact.join(', ')}}"
     end
     
     def is_a? klazz
       klazz == @@hash_class or super
-    end
-    
-    alias_method :_keys, :keys
-    def keys
-      _keys.reject { |k| self[k].is_a?(Proc) or k.to_s =~ /^@/ }
     end
     
     def values
@@ -116,20 +120,14 @@ module Confstruct
 
         if result.is_a?(HashWithStructAccess) and block_given?
           eval_or_yield result, &block
-        elsif result.is_a?(Proc) 
-          result = eval_or_yield self, &result
         end
         result
       end
     end
     
     def methods
-      key_methods = _keys.collect do |k|
-        if k.to_s =~ /^@/ 
-          nil
-        else
-          self[k].is_a?(Proc) ? k.to_s : [k.to_s, "#{k}="]
-        end
+      key_methods = keys.collect do |k|
+        self[k].is_a?(Deferred) ? k.to_s : [k.to_s, "#{k}="]
       end
       super + key_methods.compact.flatten
     end

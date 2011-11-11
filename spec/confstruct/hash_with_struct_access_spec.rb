@@ -134,14 +134,21 @@ describe Confstruct::HashWithStructAccess do
         :github => { 
           :url => 'http://www.github.com/mbklein/confstruct',
           :default_branch => 'master',
-          :reverse_url => lambda { self.url.reverse },
-          :upcase_url => lambda { |c| c.url.upcase }
+          :regular_proc => lambda { |a,b,c| puts "#{a}: #{b} #{c}" },
+          :reverse_url => Confstruct.deferred { self.url.reverse },
+          :upcase_url => Confstruct.deferred { |c| c.url.upcase }
         }
       }
     end
   
     before :each do
       @hwsa = Confstruct::HashWithStructAccess.from_hash(@hash)
+    end
+    
+    it "should only evaluate Confstruct::Deferred procs" do
+      @hwsa.github.regular_proc.is_a?(Proc).should be_true
+      @hwsa.github.upcase_url.is_a?(Proc).should be_false
+      @hwsa.github.reverse_url.is_a?(Proc).should be_false
     end
     
     it "should instance_eval the proc with no params" do
@@ -151,22 +158,27 @@ describe Confstruct::HashWithStructAccess do
     it "should call the proc with params" do
       @hwsa.github.upcase_url.should == @hash[:github][:url].upcase
     end
-    
-    it "should ignore procs when enumerating keys" do
-      @hash[:github].keys.length.should == 4
-      @hwsa.github.keys.length.should == 2
-    end
-    
-    it "should ignore procs when enumerating values" do
-      @hash[:github].values.length.should == 4
-      @hwsa.github.values.length.should == 2
+        
+    it "should evaluate deferreds when enumerating values" do
+      @hash[:github].values.should_not include(@hash[:github][:url].reverse)
+      @hwsa.github.values.should include(@hash[:github][:url].reverse)
     end
 
-    it "should ignore procs when inspecting" do
+    it "should evaluate deferreds when inspecting" do
       s = @hwsa.inspect
-      s.should =~ /:github=>/
-      s.should =~ /:url=>/
-      s.should_not =~ /:reverse_url=>/
+      s.should =~ %r[:reverse_url=>"tcurtsfnoc/nielkbm/moc.buhtig.www//:ptth"]
+      s.should =~ %r[:regular_proc=>#<Proc:]
     end
+    
+    it "should allow definition of deferreds in block mode" do
+      @hwsa.github do
+        defproc deferred! { reverse_url + upcase_url }
+        regproc lambda { reverse_url + upcase_url }
+      end
+      @hwsa.github.defproc.is_a?(Proc).should be_false
+      @hwsa.github.defproc.should == @hwsa.github.reverse_url + @hwsa.github.upcase_url
+      @hwsa.github.regproc.is_a?(Proc).should be_true
+    end
+    
   end
 end
