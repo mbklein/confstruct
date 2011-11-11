@@ -118,7 +118,9 @@ act like `lambda`, making the following two assignments equivalent to the above:
       client deferred! { |c| RestClient::Resource.new(c.url) }
     end
 
-`push!` and `pop!` methods allow you to temporarily override some or all of your configuration values
+`push!` and `pop!` methods allow you to temporarily override some or all of your configuration values. This can be
+useful in spec tests where you need to change values but don't want to worry about messing up tests that depend
+on the same global configuration object.
 
     config.github.url
      => "http://www.github.com/mbklein/confstruct"
