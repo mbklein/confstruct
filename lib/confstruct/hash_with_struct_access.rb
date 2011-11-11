@@ -91,6 +91,20 @@ module Confstruct
       Deferred.new(&block)
     end
     
+    def has? key_path
+      val = self
+      keys = key_path.split(/\./)
+      keys.each do |key|
+        return false if val.nil?
+        if val.respond_to?(:has_key?) and val.has_key?(key.to_sym)
+          val = val[key.to_sym]
+        else
+          return false
+        end
+      end
+      return true
+    end
+    
     def inspect
       r = self.keys.collect { |k| "#{k.inspect}=>#{self[k].inspect}" }
       "{#{r.compact.join(', ')}}"
@@ -100,8 +114,18 @@ module Confstruct
       klazz == @@hash_class or super
     end
     
-    def values
-      keys.collect { |k| self[k] }
+    def lookup! key_path
+      val = self
+      keys = key_path.split(/\./)
+      keys.each do |key|
+        return nil if val.nil?
+        if val.respond_to?(:has_key?) and val.has_key?(key.to_sym)
+          val = val[key.to_sym]
+        else
+          return nil
+        end
+      end
+      return val
     end
     
     def method_missing sym, *args, &block
@@ -144,6 +168,10 @@ module Confstruct
       self.class.symbolize(key)
     end
        
+    def values
+     keys.collect { |k| self[k] }
+    end
+
     protected 
     def do_deep_merge! source, target
       source.each_pair do |k,v|

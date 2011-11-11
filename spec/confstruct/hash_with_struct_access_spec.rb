@@ -67,6 +67,16 @@ describe Confstruct::HashWithStructAccess do
       end
     end
     
+    it "should properly respond to #has?" do
+      @hwsa.has?('github.url').should be_true
+      @hwsa.has?('github.foo.bar.baz').should be_false
+    end
+    
+    it "should properly respond to #lookup!" do
+      @hwsa.lookup!('github.url').should == @hash[:github][:url]
+      @hwsa.lookup!('github.foo.bar.baz').should be_nil
+    end
+    
     it "should provide introspection" do
       @hwsa.should_respond_to(:project)
       @hash.keys.each do |m| 
