@@ -134,19 +134,19 @@ module Confstruct
       end
       
       name = sym.to_s.chomp('=').to_sym
+      result = nil
       if args.length == 1
-        self[name] = args[0]
+        result = self[name] = args[0]
       else
         result = self[name]
         if result.nil? and block_given?
           result = self[name] = HashWithStructAccess.new(@@hash_class.new)
         end
-
-        if result.is_a?(HashWithStructAccess) and block_given?
-          eval_or_yield result, &block
-        end
-        result
       end
+      if block_given?
+        eval_or_yield result, &block
+      end
+      result
     end
     
     def methods
