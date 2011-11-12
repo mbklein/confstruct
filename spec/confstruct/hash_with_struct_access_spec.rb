@@ -132,6 +132,19 @@ describe Confstruct::HashWithStructAccess do
       @hwsa.github.should == { :url => 'http://www.github.com/somefork/other-project', :branch => 'pre-1.0' }
     end
     
+    it "should eval_or_yield all types" do
+      @hwsa.github do
+        items([]) do
+          self.should == []
+          push 1
+          push 'two'
+          push :III
+          self.should == [1,'two',:III]
+        end
+      end
+      @hwsa.github.items.should == [1,'two',:III]
+    end
+    
     it "should fail on other method signatures" do
       lambda { @hwsa.error(1, 2, 3) }.should raise_error(NoMethodError)
     end
