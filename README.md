@@ -4,6 +4,8 @@
 hash, struct, or block, confstruct aims to provide the flexibility to do things your
 way, while keeping things simple and intuitive.
 
+[![Build Status](https://secure.travis-ci.org/mbklein/confstruct.png)](http://travis-ci.org/mbklein/confstruct])
+
 ## Usage
 
 First, either create an empty `ConfStruct::Configuration` object:
