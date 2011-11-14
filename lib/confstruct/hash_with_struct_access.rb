@@ -129,14 +129,25 @@ module Confstruct
     end
     
     def method_missing sym, *args, &block
-      if args.length > 1
-        super(sym,*args,&block)
-      end
-      
       name = sym.to_s.chomp('=').to_sym
       result = nil
-      if args.length == 1
+      
+      if name.to_s =~ /^add_(.+)!$/
+        name = $1.to_sym
+        self[name] = [] unless self.has_key?(name)
+        unless self[name].is_a?(Array)
+          raise TypeError, "Cannot #add! to a #{self[name].class}"
+        end
+        if args.length > 0
+          result = self[name].push *args
+        elsif block_given?
+          result = HashWithStructAccess.new(@@hash_class.new)
+          self[name].push result
+        end
+      elsif args.length == 1
         result = self[name] = args[0]
+      elsif args.length > 1
+        super(sym,*args,&block)
       else
         result = self[name]
         if result.nil? and block_given?

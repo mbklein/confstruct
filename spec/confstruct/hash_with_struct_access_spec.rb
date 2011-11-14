@@ -203,5 +203,23 @@ describe Confstruct::HashWithStructAccess do
       @hwsa.github.regproc.is_a?(Proc).should be_true
     end
     
+    it "should create arrays on the fly" do
+      @hwsa.github do
+        add_roles!({:jeeves => :valet}, {:wooster => :dolt})
+        add_roles! do
+          psmith :chum
+        end
+      end
+      @hwsa.github.roles.should == [{:jeeves => :valet}, {:wooster => :dolt}, {:psmith => :chum}]
+    end
+    
+    it "should not allow #add!ing to non-Array types" do
+      lambda { 
+        @hwsa.github do
+          add_url! 'https://github.com/mbklein/busted'
+        end
+      }.should raise_error(TypeError)
+    end
+    
   end
 end
