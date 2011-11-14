@@ -30,6 +30,14 @@ module Confstruct
         @@ordered
       end
       
+      def structurize hash
+        result = hash
+        if result.is_a?(Hash) and not result.is_a?(HashWithStructAccess)
+          result = HashWithStructAccess.new(result)
+        end
+        result
+      end
+      
       def symbolize_hash hash
         hash.inject(@@hash_class.new) do |h,(k,v)| 
           h[symbolize k] = v.is_a?(Hash) ? symbolize_hash(v) : v
@@ -47,18 +55,16 @@ module Confstruct
     end
 
     def [] key
-      result = super(symbolize(key))
-      if result.is_a?(Hash) and not result.is_a?(HashWithStructAccess)
-        result = HashWithStructAccess.new(result)
-      elsif result.is_a?(Deferred)
+      result = structurize! super(symbolize!(key))
+      if result.is_a?(Deferred)
         result = eval_or_yield self, &result
       end
       result
     end
     
     def []= key,value
-      k = symbolize(key)
-      v = (value.is_a?(Hash) and not value.is_a?(HashWithStructAccess)) ? HashWithStructAccess.new(value) : value
+      k = symbolize!(key)
+      v = structurize! value
       if v.is_a?(Hash) and self[k].is_a?(Hash)
         self[k].replace(v)
       else
@@ -139,7 +145,8 @@ module Confstruct
           raise TypeError, "Cannot #add! to a #{self[name].class}"
         end
         if args.length > 0
-          result = self[name].push *args
+          local_args = args.collect { |a| structurize! a }
+          result = self[name].push *local_args
         elsif block_given?
           result = HashWithStructAccess.new(@@hash_class.new)
           self[name].push result
@@ -172,10 +179,14 @@ module Confstruct
     end
     
     def respond_to? arg
-      super(arg) || keys.include?(symbolize(arg.to_s.sub(/=$/,'')))
+      super(arg) || keys.include?(symbolize!(arg.to_s.sub(/=$/,'')))
     end
 
-    def symbolize key
+    def structurize! hash
+      self.class.structurize(hash)
+    end
+    
+    def symbolize! key
       self.class.symbolize(key)
     end
        

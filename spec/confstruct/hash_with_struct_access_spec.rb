@@ -211,6 +211,7 @@ describe Confstruct::HashWithStructAccess do
         end
       end
       @hwsa.github.roles.should == [{:jeeves => :valet}, {:wooster => :dolt}, {:psmith => :chum}]
+      @hwsa.github.roles.first.jeeves.should == :valet
     end
     
     it "should not allow #add!ing to non-Array types" do
