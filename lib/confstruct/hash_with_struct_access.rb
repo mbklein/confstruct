@@ -120,15 +120,15 @@ module Confstruct
       klazz == @@hash_class or super
     end
     
-    def lookup! key_path
+    def lookup! key_path, fallback = nil
       val = self
       keys = key_path.split(/\./)
       keys.each do |key|
-        return nil if val.nil?
+        return fallback if val.nil?
         if val.respond_to?(:has_key?) and val.has_key?(key.to_sym)
           val = val[key.to_sym]
         else
-          return nil
+          return fallback
         end
       end
       return val
