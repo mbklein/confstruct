@@ -4,6 +4,18 @@ require 'confstruct/utils'
 module Confstruct
   class Deferred < Proc; end
   def self.deferred &block; Deferred.new(&block); end
+  
+  def self.i18n key=nil, &block
+    raise NameError, "I18n handler not loaded" unless Object.const_defined? :I18n # ensure the Rails I18n handler is loaded
+    Deferred.new do |hwsa|
+      val = block_given? ? eval_or_yield(hwsa, &block) : key
+      if val.is_a?(Date) or val.is_a?(Time) or val.is_a?(DateTime)
+        ::I18n.localize val
+      else
+        ::I18n.translate val
+      end
+    end
+  end
 
   if ::RUBY_VERSION < '1.9'
     begin
@@ -94,7 +106,7 @@ module Confstruct
     end
 
     def deferred! &block
-      Deferred.new(&block)
+      Confstruct.deferred(&block)
     end
     
     def has? key_path
@@ -109,6 +121,10 @@ module Confstruct
         end
       end
       return true
+    end
+    
+    def i18n! key=nil, &block
+      Confstruct.i18n(key,&block)
     end
     
     def inspect

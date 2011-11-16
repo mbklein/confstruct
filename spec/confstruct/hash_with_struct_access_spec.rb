@@ -150,6 +150,26 @@ describe Confstruct::HashWithStructAccess do
     it "should fail on other method signatures" do
       lambda { @hwsa.error(1, 2, 3) }.should raise_error(NoMethodError)
     end
+    
+    it "should create arrays on the fly" do
+      @hwsa.github do
+        add_roles!({:jeeves => :valet}, {:wooster => :dolt})
+        add_roles! do
+          psmith :chum
+        end
+      end
+      @hwsa.github.roles.should == [{:jeeves => :valet}, {:wooster => :dolt}, {:psmith => :chum}]
+      @hwsa.github.roles.first.jeeves.should == :valet
+    end
+    
+    it "should not allow #add!ing to non-Array types" do
+      lambda { 
+        @hwsa.github do
+          add_url! 'https://github.com/mbklein/busted'
+        end
+      }.should raise_error(TypeError)
+    end
+    
   end
 
   context "Proc values as virtual methods" do
@@ -205,23 +225,19 @@ describe Confstruct::HashWithStructAccess do
       @hwsa.github.regproc.is_a?(Proc).should be_true
     end
     
-    it "should create arrays on the fly" do
+    it "should handle i18n translations" do
+      t = Time.now
+      I18n = RSpec::Mocks::Mock.new('I18n')
+      I18n.should_receive(:translate).with('Hello, World!').and_return('Bonjour, Monde!')
+      I18n.should_receive(:localize).with(t).and_return('French Time!')
       @hwsa.github do
-        add_roles!({:jeeves => :valet}, {:wooster => :dolt})
-        add_roles! do
-          psmith :chum
-        end
+        hello 'Hello, World!'
+        time t
+        local_hello i18n! { hello }
+        local_time i18n! { time }
       end
-      @hwsa.github.roles.should == [{:jeeves => :valet}, {:wooster => :dolt}, {:psmith => :chum}]
-      @hwsa.github.roles.first.jeeves.should == :valet
-    end
-    
-    it "should not allow #add!ing to non-Array types" do
-      lambda { 
-        @hwsa.github do
-          add_url! 'https://github.com/mbklein/busted'
-        end
-      }.should raise_error(TypeError)
+      @hwsa.github.local_hello.should == 'Bonjour, Monde!'
+      @hwsa.github.local_time.should == 'French Time!'
     end
     
   end
