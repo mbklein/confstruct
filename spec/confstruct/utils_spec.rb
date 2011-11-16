@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require 'confstruct/utils'
 
 describe "Kernel.eval_or_yield" do
   before :all do

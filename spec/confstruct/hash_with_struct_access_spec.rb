@@ -1,5 +1,4 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
-require 'confstruct/hash_with_struct_access'
 
 describe Confstruct::HashWithStructAccess do
   
