@@ -148,6 +148,9 @@ on the same global configuration object.
   
 ## Release History
 
+- <b>v0.1.0</b> - Initial release
+- <b>v0.2.0</b> - Add fallback value to HashWithStructAccess#lookup!, native support for Rails I18n.
+
 ## Contributing to confstruct
 
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
