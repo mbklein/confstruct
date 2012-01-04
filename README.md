@@ -103,21 +103,21 @@ hash or a struct:
 Any configuration value of class `Confstruct::Deferred` will be evaluated on access, allowing you to
 define read-only, dynamic configuration attributes
 
-    config[:github][:client] = Confstruct::Deferred.new { |c| RestClient::Resource.new(c.url) }
-     => #<Proc:0x00000001035eb240>
-    config.github.client 
-     => #<RestClient::Resource:0x1035e3b30 @options={}, @url="http://www.github.com/mbklein/confstruct", @block=nil> 
-    config.github.url = 'http://www.github.com/somefork/other-project'
-     => "http://www.github.com/somefork/other-project" 
-    config.github.client 
-     => #<RestClient::Resource:0x1035d5bc0 @options={}, @url="http://www.github.com/somefork/other-project", @block=nil>
+    config.app_name = "iWidgetCloud"
+    config.msgs.welcome = Confstruct::Deferred.new {|c| "Welcome to #{c.app_name}!"}    
+    config.msgs.welcome
+     => "Welcome to iWidgetCloud!"
+    config.app_name = "Enterprisey-Webscale"
+     => "Enterprisey-Webscale" 
+    config.welcome_msg
+     => "Welcome to Enterprisey-Webscale"
      
 As a convenience, `Confstruct.deferred(&block)` and `Confstruct::HashWithStructAccess#deferred!(&block)`
-act like `lambda`, making the following two assignments equivalent to the above:
+will create a Confstruct::Deferred for you, making the following two assignments equivalent to the above:
 
-    config.github.client = Confstruct.deferred { |c| RestClient::Resource.new(c.url) }
-    config.github do
-      client deferred! { |c| RestClient::Resource.new(c.url) }
+    config.welcome_msg = Confstruct.deferred { |c| "Welcome to #{c.app_name}!" }
+    config do
+      welcome_msg deferred! { |c| RestClient::Resource.new(c.url) }
     end
 
 `push!` and `pop!` methods allow you to temporarily override some or all of your configuration values. This can be
