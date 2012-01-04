@@ -98,7 +98,9 @@ hash or a struct:
     config[:github]
      => {:url=>"http://www.github.com/somefork/other-project", :branch=>"pre-1.0"}
 
-### Advanced Tips & Tricks
+### Other Features
+
+#### Deferred evaluation
 
 Any configuration value of class `Confstruct::Deferred` will be evaluated on access, allowing you to
 define read-only, dynamic configuration attributes
@@ -120,6 +122,8 @@ will create a Confstruct::Deferred for you, making the following two assignments
       welcome_msg deferred! { |c| RestClient::Resource.new(c.url) }
     end
 
+#### Push/Pop configurations
+
 `push!` and `pop!` methods allow you to temporarily override some or all of your configuration values. This can be
 useful in spec tests where you need to change values but don't want to worry about messing up tests that depend
 on the same global configuration object.
@@ -134,8 +138,30 @@ on the same global configuration object.
      => {:project=>"confstruct", :github=>{:branch=>"master", :url=>"http://www.github.com/mbklein/confstruct"}} 
     config.github.url
      => "http://www.github.com/mbklein/confstruct"
+    
+#### lookup!
+
+`lookup!` can be used to look up down a hieararchy without raising on missing values; and/or 
+to look up with default value. 
+
+    config = Confstruct::Configuration.new do 
+      project 'confstruct'
+      github do
+        url 'http://www.github.com/mbklein/confstruct'
+        branch 'master'
+      end
+    end
+    config.lookup!("github.url")
+    => "http://www.github.com/mbklein/confstruct"
+    config.lookup!("github.no_key")
+    => nil # no raising
+    config.lookup!("not_there.really.not.there")
+    => nil
+    config.lookup!("github.not_there", "default_value")
+    => "default_value"
 
 ### Notes
+
 
 * Confstruct will attempt to use ordered hashes internally when available.
   * In Ruby 1.9 and above, this is automatic.
