@@ -159,6 +159,20 @@ to look up with default value.
     => nil
     config.lookup!("github.not_there", "default_value")
     => "default_value"
+    
+#### lists
+
+The pattern `add_$key!` can be used to add to or create an array. 
+
+    config = Confstruct::Configuration.new
+    config.add_color! "green"
+    => ["green"]
+    config
+    => {:color=>["green"]}
+    config.add_color! "red"
+    config.color
+    => ["green", "red"]
+    
 
 ### Notes
 
