@@ -98,27 +98,31 @@ hash or a struct:
     config[:github]
      => {:url=>"http://www.github.com/somefork/other-project", :branch=>"pre-1.0"}
 
-### Advanced Tips & Tricks
+### Other Features
+
+#### Deferred evaluation
 
 Any configuration value of class `Confstruct::Deferred` will be evaluated on access, allowing you to
 define read-only, dynamic configuration attributes
 
-    config[:github][:client] = Confstruct::Deferred.new { |c| RestClient::Resource.new(c.url) }
-     => #<Proc:0x00000001035eb240>
-    config.github.client 
-     => #<RestClient::Resource:0x1035e3b30 @options={}, @url="http://www.github.com/mbklein/confstruct", @block=nil> 
-    config.github.url = 'http://www.github.com/somefork/other-project'
-     => "http://www.github.com/somefork/other-project" 
-    config.github.client 
-     => #<RestClient::Resource:0x1035d5bc0 @options={}, @url="http://www.github.com/somefork/other-project", @block=nil>
+    config.app_name = "iWidgetCloud"
+    config.msgs.welcome = Confstruct::Deferred.new {|c| "Welcome to #{c.app_name}!"}    
+    config.msgs.welcome
+     => "Welcome to iWidgetCloud!"
+    config.app_name = "Enterprisey-Webscale"
+     => "Enterprisey-Webscale" 
+    config.welcome_msg
+     => "Welcome to Enterprisey-Webscale"
      
 As a convenience, `Confstruct.deferred(&block)` and `Confstruct::HashWithStructAccess#deferred!(&block)`
-act like `lambda`, making the following two assignments equivalent to the above:
+will create a Confstruct::Deferred for you, making the following two assignments equivalent to the above:
 
-    config.github.client = Confstruct.deferred { |c| RestClient::Resource.new(c.url) }
-    config.github do
-      client deferred! { |c| RestClient::Resource.new(c.url) }
+    config.welcome_msg = Confstruct.deferred { |c| "Welcome to #{c.app_name}!" }
+    config do
+      welcome_msg deferred! { |c| RestClient::Resource.new(c.url) }
     end
+
+#### Push/Pop configurations
 
 `push!` and `pop!` methods allow you to temporarily override some or all of your configuration values. This can be
 useful in spec tests where you need to change values but don't want to worry about messing up tests that depend
@@ -134,8 +138,44 @@ on the same global configuration object.
      => {:project=>"confstruct", :github=>{:branch=>"master", :url=>"http://www.github.com/mbklein/confstruct"}} 
     config.github.url
      => "http://www.github.com/mbklein/confstruct"
+    
+#### lookup!
+
+`lookup!` can be used to look up down a hieararchy without raising on missing values; and/or 
+to look up with default value. 
+
+    config = Confstruct::Configuration.new do 
+      project 'confstruct'
+      github do
+        url 'http://www.github.com/mbklein/confstruct'
+        branch 'master'
+      end
+    end
+    config.lookup!("github.url")
+    => "http://www.github.com/mbklein/confstruct"
+    config.lookup!("github.no_key")
+    => nil # no raising
+    config.lookup!("not_there.really.not.there")
+    => nil
+    config.lookup!("github.not_there", "default_value")
+    => "default_value"
+    
+#### lists
+
+The pattern `add_$key!` can be used to add to or create an array. 
+
+    config = Confstruct::Configuration.new
+    config.add_color! "green"
+    => ["green"]
+    config
+    => {:color=>["green"]}
+    config.add_color! "red"
+    config.color
+    => ["green", "red"]
+    
 
 ### Notes
+
 
 * Confstruct will attempt to use ordered hashes internally when available.
   * In Ruby 1.9 and above, this is automatic.
