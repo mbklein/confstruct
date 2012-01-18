@@ -75,7 +75,7 @@ You can even
     config.project = 'other-project'
     config.github = { :url => 'http://www.github.com/somefork/other-project', :branch => 'pre-1.0' }
 
-The configure method will even a deep merge for you if you pass it a hash or hash-like object
+The configure method will even perform a deep merge for you if you pass it a hash or hash-like object
 (anything that responds to `each_pair`)
 
     config.configure({:project => 'other-project', :github => {:url => 'http://www.github.com/somefork/other-project', :branch => 'pre-1.0'}})
