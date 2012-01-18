@@ -202,7 +202,6 @@ The pattern `add_$key!` can be used to add to or create an array.
 * Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
 * Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
 
-## Copyright
+## License
 
-Copyright (c) 2011 Michael B. Klein. See LICENSE.txt for further details.
-
+confstruct is released under the [MIT License](http://www.opensource.org/licenses/MIT)
