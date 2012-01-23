@@ -8,6 +8,16 @@ describe Confstruct::Configuration do
     conf.is_a?(Confstruct::Configuration).should be_true
     conf.should == {}
   end
+  
+  it "should initialize properly from a nested hash with string keys" do
+    x = { 'a' => { 'b' => 'c' } }
+    conf = Confstruct::Configuration.new(x)
+    conf.is_a?(Hash).should be_true
+    conf.is_a?(Confstruct::Configuration).should be_true
+    conf[:a][:b].should == 'c'
+    conf['a']['b'].should == 'c'
+    conf.a.b.should == 'c'
+  end
 
   context "default values" do
     before :all do

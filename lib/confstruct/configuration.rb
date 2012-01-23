@@ -6,7 +6,7 @@ module Confstruct
   
     def initialize hash=@@hash_class.new, &block
       super({})
-      @default_values = hash.is_a?(HashWithStructAccess) ? hash : HashWithStructAccess.new(hash)
+      @default_values = hash.is_a?(HashWithStructAccess) ? hash : HashWithStructAccess.from_hash(hash)
       eval_or_yield @default_values, &block
       reset_defaults!
     end
