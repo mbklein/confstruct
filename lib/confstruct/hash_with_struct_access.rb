@@ -132,9 +132,10 @@ module Confstruct
       "{#{r.compact.join(', ')}}"
     end
     
-    def is_a? klazz
-      klazz == @@hash_class or super
+    def kind_of? klazz
+      @@hash_class.ancestors.include?(klazz) or super
     end
+    alias_method :is_a?, :kind_of?
     
     def lookup! key_path, fallback = nil
       val = self
