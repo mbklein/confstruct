@@ -9,6 +9,9 @@ require 'rubygems'
 require 'active_support/core_ext/object/blank'
 require 'confstruct'
 
+require 'simplecov'
+SimpleCov.start
+
 RSpec.configure do |config|
   
 end
