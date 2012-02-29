@@ -1,11 +1,9 @@
-# confstruct
+# confstruct [![Build Status](https://secure.travis-ci.org/mbklein/confstruct.png)](http://travis-ci.org/mbklein/confstruct) [![Dependency Status](https://gemnasium.com/mbklein/confstruct.png)](https://gemnasium.com/mbklein/confstruct)
+
 
 <b>Confstruct</b> is yet another configuration gem. Definable and configurable by 
 hash, struct, or block, confstruct aims to provide the flexibility to do things your
 way, while keeping things simple and intuitive.
-
-[![Build Status](https://secure.travis-ci.org/mbklein/confstruct.png)](http://travis-ci.org/mbklein/confstruct)
-[![Dependency Status](https://gemnasium.com/mbklein/confstruct.png)](https://gemnasium.com/mbklein/confstruct)
 
 ## Usage
 
