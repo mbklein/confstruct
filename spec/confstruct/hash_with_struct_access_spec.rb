@@ -239,14 +239,29 @@ describe Confstruct::HashWithStructAccess do
       @hwsa.github.local_hello.should == 'Bonjour, Monde!'
       @hwsa.github.local_time.should == 'French Time!'
     end
-    
+      
   end
   
   context "delegation" do
+    before :each do
+      @hwsa = Confstruct::HashWithStructAccess.from_hash('a' => { 'b' => { 'c' => 'd' } })
+    end
+    
     it "should always return HashWithStructAccess hashes" do
-      hwsa = Confstruct::HashWithStructAccess.from_hash('a' => { 'b' => { 'c' => 'd' } })
-      hwsa.a.b.should be_a Confstruct::HashWithStructAccess
-#      hwsa.a.b.presence.should be_a Confstruct::HashWithStructAccess
+      @hwsa.a.b.should be_a Confstruct::HashWithStructAccess
+    end
+
+    it "should gracefully handle being extended" do
+      pending %{probably won't fix due to the unpredictable way ActiveSupport injects #presence()}
+      @hwsa.a.b.presence.should be_a Confstruct::HashWithStructAccess
     end
   end
+  
+  context "bug fixes" do
+    hwsa = Confstruct::HashWithStructAccess.from_hash('a' => { 'b' => { 'c' => 'd' } })
+    it "should handle the two-argument form of #respond_to?" do
+      lambda { hwsa.respond_to? :something, true }.should_not raise_error
+    end
+  end
+  
 end

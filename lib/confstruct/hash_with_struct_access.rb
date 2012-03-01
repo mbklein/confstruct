@@ -195,8 +195,8 @@ module Confstruct
       self.class.ordered?
     end
     
-    def respond_to? arg
-      super(arg) || keys.include?(symbolize!(arg.to_s.sub(/=$/,'')))
+    def respond_to? *args
+      super(*args) || keys.include?(symbolize!(args[0].to_s.sub(/=$/,'')))
     end
 
     def structurize! hash
