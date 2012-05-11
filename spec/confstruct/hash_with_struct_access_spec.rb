@@ -209,9 +209,9 @@ describe Confstruct::HashWithStructAccess do
       @hwsa.github.values.should include(@hash[:github][:url].reverse)
     end
 
-    it "should evaluate deferreds when inspecting" do
+    it "should not evaluate deferreds when inspecting" do
       s = @hwsa.inspect
-      s.should =~ %r[:reverse_url=>"tcurtsfnoc/nielkbm/moc.buhtig.www//:ptth"]
+      s.should =~ %r{:reverse_url=>\(deferred\)}
       s.should =~ %r[:regular_proc=>#<Proc:]
     end
     
