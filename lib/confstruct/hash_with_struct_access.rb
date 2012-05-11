@@ -2,7 +2,15 @@ require 'delegate'
 require 'confstruct/utils'
 
 module Confstruct
-  class Deferred < Proc; end
+  class Deferred < Proc
+    def inspect(full=false)
+      if full
+        super
+      else
+        "(deferred)"
+      end
+    end
+  end
   def self.deferred &block; Deferred.new(&block); end
   
   def self.i18n key=nil, &block
@@ -128,7 +136,7 @@ module Confstruct
     end
     
     def inspect
-      r = self.keys.collect { |k| "#{k.inspect}=>#{self[k].inspect}" }
+      r = self.keys.collect { |k| "#{k.inspect}=>#{self.fetch(k).inspect}" }
       "{#{r.compact.join(', ')}}"
     end
     
