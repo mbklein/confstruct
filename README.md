@@ -191,6 +191,7 @@ The pattern `add_$key!` can be used to add to or create an array.
 - <b>v0.2.0</b> - Add fallback value to HashWithStructAccess#lookup!, native support for Rails I18n.
 - <b>v0.2.1</b> - Initialize properly from a nested hash with string (non-symbol) keys
 - <b>v0.2.2</b> - Fix ArgumentError on #respond_to?(sym, true)
+- <b>v0.2.3</b> - Don't evaluate Deferreds during #inspect
 
 ## Contributing to confstruct
 
