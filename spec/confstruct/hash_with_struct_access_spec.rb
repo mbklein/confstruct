@@ -181,7 +181,8 @@ describe Confstruct::HashWithStructAccess do
           :default_branch => 'master',
           :regular_proc => lambda { |a,b,c| puts "#{a}: #{b} #{c}" },
           :reverse_url => Confstruct.deferred { self.url.reverse },
-          :upcase_url => Confstruct.deferred { |c| c.url.upcase }
+          :upcase_url => Confstruct.deferred { |c| c.url.upcase },
+          :introspective => Confstruct.deferred { |c| c }
         }
       }
     end
@@ -238,6 +239,10 @@ describe Confstruct::HashWithStructAccess do
       end
       @hwsa.github.local_hello.should == 'Bonjour, Monde!'
       @hwsa.github.local_time.should == 'French Time!'
+    end
+
+    it "should send the confstruct object as a parameter when evaluating the deferred" do
+      @hwsa.github.introspective.should be_a_kind_of(Confstruct::HashWithStructAccess)
     end
       
   end
