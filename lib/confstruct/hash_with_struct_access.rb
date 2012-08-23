@@ -2,7 +2,11 @@ require 'delegate'
 require 'confstruct/utils'
 
 module Confstruct
-  class Deferred < Proc
+  class Deferred
+    attr_reader :block
+    def initialize &block
+      @block = block
+    end
     def inspect(full=false)
       if full
         super
@@ -77,7 +81,7 @@ module Confstruct
     def [] key
       result = structurize! super(symbolize!(key))
       if result.is_a?(Deferred)
-        result = eval_or_yield self, &result
+        result = eval_or_yield self, &result.block
       end
       result
     end
