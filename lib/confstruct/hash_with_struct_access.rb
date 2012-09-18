@@ -46,6 +46,7 @@ module Confstruct
     
     class << self
       def from_hash hash
+        return hash if hash.is_a?(self)
         symbolized_hash = symbolize_hash hash
         self.new(symbolized_hash)
       end

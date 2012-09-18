@@ -127,6 +127,12 @@ describe Confstruct::Configuration do
         mock postconfigurator
       end
     end
+
+    it "should be initializable with a string-keyed hash" do
+      conf = Confstruct::Configuration.new
+      conf.configure(:top=>{:middle=>{"one"=>"two"}})
+      conf.top.middle.one.should == 'two'
+    end
   end
 
 end

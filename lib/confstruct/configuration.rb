@@ -6,7 +6,7 @@ module Confstruct
   
     def initialize hash=@@hash_class.new, &block
       super({})
-      @default_values = hash.is_a?(HashWithStructAccess) ? hash : HashWithStructAccess.from_hash(hash)
+      @default_values = HashWithStructAccess.from_hash(hash)
       eval_or_yield @default_values, &block
       reset_defaults!
     end
@@ -16,7 +16,7 @@ module Confstruct
     
     def configure *args, &block
       if args[0].respond_to?(:each_pair)
-        self.deep_merge!(args[0])
+        self.deep_merge!(HashWithStructAccess.from_hash(args[0]))
       end
       eval_or_yield self, &block
       after_config! self
