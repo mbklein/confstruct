@@ -193,6 +193,7 @@ The pattern `add_$key!` can be used to add to or create an array.
 - <b>v0.2.2</b> - Fix ArgumentError on #respond_to?(sym, true)
 - <b>v0.2.3</b> - Don't evaluate Deferreds during #inspect
 - <b>v0.2.4</b> - Fix deferreds under Ruby 1.9.x
+- <b>v0.2.5</b> - #14 #configure loses nested hashes somehow
 
 ## Contributing to confstruct
 
