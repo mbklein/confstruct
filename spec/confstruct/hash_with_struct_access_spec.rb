@@ -73,10 +73,14 @@ describe Confstruct::HashWithStructAccess do
     
     it "should properly respond to #lookup!" do
       @hwsa.lookup!('github.url').should == @hash[:github][:url]
+      @hwsa.lookup!(:'github.url').should == @hash[:github][:url]
       @hwsa.lookup!('github.foo.bar.baz',:default).should == :default
+      @hwsa.lookup!(:'github.foo.bar.baz',:default).should == :default
       @hwsa.lookup!('github.foo.bar.baz').should be_nil
+      @hwsa.lookup!(:'github.foo.bar.baz').should be_nil
       @hwsa.github.quux = nil
       @hwsa.lookup!('github.quux',:default).should be_nil
+      @hwsa.lookup!(:'github.quux',:default).should be_nil
     end
     
     it "should provide introspection" do
