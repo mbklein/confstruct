@@ -6,7 +6,6 @@ require 'rspec'
 require 'rspec/autorun'
 
 require 'rubygems'
-require 'active_support/core_ext/object/blank'
 require 'confstruct'
 
 require 'simplecov'
