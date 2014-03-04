@@ -219,7 +219,7 @@ describe Confstruct::HashWithStructAccess do
     it "should allow definition of deferreds in block mode" do
       @hwsa.github do
         defproc deferred! { reverse_url + upcase_url }
-        regproc lambda { reverse_url + upcase_url }
+        regproc Kernel.lambda { reverse_url + upcase_url }
       end
       @hwsa.github.defproc.is_a?(Proc).should be_false
       @hwsa.github.defproc.should == @hwsa.github.reverse_url + @hwsa.github.upcase_url
