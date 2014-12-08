@@ -14,3 +14,20 @@ SimpleCov.start
 RSpec.configure do |config|
   
 end
+
+
+
+
+# Two hashes are equal even if one has symbols as keys
+# and another strings. works on nested hashes too. 
+require 'hashie'
+class IndifferentHashieHash < Hash
+  include Hashie::Extensions::MergeInitializer
+  include Hashie::Extensions::IndifferentAccess
+end
+
+RSpec::Matchers.define :match_indifferently do |expected|
+  match do |actual|
+    IndifferentHashieHash.new(actual) ==  IndifferentHashieHash.new(expected)
+  end
+end
