@@ -97,6 +97,15 @@ describe Confstruct::Configuration do
       end
       @config.should == @configured
     end
+
+    # Failed in Ruby 2.1 pre-Hashie base
+    it "should configure as a block with lambda" do
+      conf = Confstruct::Configuration.new
+      conf.configure do      
+        my_key lambda {|a| a}  
+      end 
+      conf.my_key.should be_kind_of(Proc)
+    end
     
     it "should save and restore state via #push! and #pop!" do   
       @config.push!({ :project => 'other-project', :github => { :url => 'http://www.github.com/mbklein/other-project' } })
