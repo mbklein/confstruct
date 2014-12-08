@@ -121,7 +121,7 @@ module Confstruct
       
       if name.to_s =~ /^add_(.+)!$/
         name = $1.to_sym
-        self[name] = [] unless self.has_key?(name)
+        self.assign_property(name, []) unless self.has_key?(name)
         unless self[name].is_a?(Array)
           raise TypeError, "Cannot #add! to a #{self[name].class}"
         end
@@ -133,14 +133,14 @@ module Confstruct
           self[name].push result
         end
       elsif args.length == 1
-        self[name] = args[0]
+        self.assign_property(name, args[0])
         result = self[name]
       elsif args.length > 1
         super(sym,*args,&block)
       else
         result = self[name]
         if result.nil? and block_given?
-          self[name] = HashWithStructAccess.new
+          self.assign_property(name, HashWithStructAccess.new)
           result = self[name]
         end
       end

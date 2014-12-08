@@ -106,6 +106,16 @@ describe Confstruct::Configuration do
       end 
       conf.my_key.should be_kind_of(Proc)
     end
+
+    it "should raise on reserved words in block mode" do    
+      conf = Confstruct::Configuration.new
+      expect do
+        conf.configure do      
+          inspect "inspect is reserved'"
+        end 
+      end.to raise_error(ArgumentError)
+    end
+
     
     it "should save and restore state via #push! and #pop!" do   
       @config.push!({ :project => 'other-project', :github => { :url => 'http://www.github.com/mbklein/other-project' } })

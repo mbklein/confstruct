@@ -66,6 +66,10 @@ describe Confstruct::HashWithStructAccess do
         g.url.should == @hash[:github][:url]
       end
     end
+
+    it "should raise on reserved words" do    
+      expect{@hwsa.inspect = "inspect is a reserved word"}.to raise_error(ArgumentError)
+    end
     
     it "should properly respond to #has?" do
       @hwsa.has?('github.url').should be_true
