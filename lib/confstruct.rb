@@ -4,5 +4,5 @@ module Confstruct
   autoload :HashWithStructAccess, 'confstruct/hash_with_struct_access'
   autoload :Configuration, 'confstruct/configuration'
   
-  VERSION = '0.2.7'
+  VERSION = '1.0.0'
 end
