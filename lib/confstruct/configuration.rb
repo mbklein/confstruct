@@ -4,8 +4,8 @@ module Confstruct
   
   class Configuration < HashWithStructAccess
   
-    def initialize hash=@@hash_class.new, &block
-      super({})
+    def initialize hash={}, default=nil, &block
+      super(hash, default)
       @default_values = HashWithStructAccess.from_hash(hash)
       eval_or_yield @default_values, &block
       reset_defaults!
@@ -35,7 +35,7 @@ module Confstruct
       else
         obj = _stash.pop
         self.clear
-        self.merge! obj
+        self.deep_merge! obj
         after_config! self
       end
       self

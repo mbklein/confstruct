@@ -1,5 +1,6 @@
-require 'delegate'
+require 'hashie'
 require 'confstruct/utils'
+
 
 module Confstruct
   class Deferred
@@ -29,93 +30,52 @@ module Confstruct
     end
   end
 
-  if ::RUBY_VERSION < '1.9'
-    begin
-      require 'active_support/ordered_hash'
-      class HashWithStructAccess < DelegateClass(ActiveSupport::OrderedHash); @@ordered = true; @@hash_class = ActiveSupport::OrderedHash; end
-    rescue LoadError, NameError
-      class HashWithStructAccess < DelegateClass(Hash); @@ordered = false; @@hash_class = Hash; end
-    end
-  else
-    class HashWithStructAccess < DelegateClass(Hash); @@ordered = true; @@hash_class = Hash; end
-  end
   
-  class HashWithStructAccess
+  class HashWithStructAccess < Hashie::Mash
+    include Hashie::Extensions::Mash::SafeAssignment
+    include Hashie::Extensions::DeepMerge
+
+
     attr_accessor :default_values
     @default_values = {}
     
-    class << self
-      def from_hash hash
-        return hash if hash.is_a?(self)
-        symbolized_hash = symbolize_hash hash
-        self.new(symbolized_hash)
-      end
+    
 
-      def ordered?
-        @@ordered
+    def self.from_hash(hash)
+      self.new(hash)
+    end
+
+    # We need an #inspect that does not evlauate Deferreds. 
+    # We use #fetch instead of #[], since fetch does not evaluate
+    # Deferreds. Otherwise copied from hashie's pretty_inspect
+    def inspect
+      ret = "#<#{self.class}"
+      keys.sort_by(&:to_s).each do |key|
+        ret << " #{key}=#{self.fetch(key).inspect}"
       end
-      
-      def structurize hash
-        result = hash
-        if result.is_a?(Hash) and not result.is_a?(HashWithStructAccess)
-          result = HashWithStructAccess.new(result)
-        end
-        result
-      end
-      
-      def symbolize_hash hash
-        hash.inject(@@hash_class.new) do |h,(k,v)| 
-          h[symbolize k] = v.is_a?(Hash) ? symbolize_hash(v) : v
-          h
-        end
-      end
-      
-      def symbolize key
-        (key.to_s.gsub(/\s+/,'_').to_sym rescue key.to_sym) || key
-      end
+      ret << '>'
+      ret
     end
     
-    def initialize hash = @@hash_class.new
-      super(hash)
-    end
 
+    def deep_copy
+      # Hashie::Mash dup does a deep copy already, hooray. 
+      self.dup
+    end
+    alias_method :inheritable_copy, :deep_copy
+
+    # Override for Deferred support
     def [] key
-      result = structurize! super(symbolize!(key))
+      result = super
       if result.is_a?(Deferred)
         result = eval_or_yield self, &result.block
       end
       result
     end
-    
-    def []= key,value
-      k = symbolize!(key)
-      v = structurize! value
-      if v.is_a?(Hash) and self[k].is_a?(Hash)
-        self[k].replace(v)
-      else
-        super(k, v)
-      end
-    end
 
-    def deep_copy
-      result = self.class.new(@@hash_class.new)
-      self.each_pair do |k,v|
-        if v.respond_to?(:deep_copy)
-          result[k] = v.deep_copy
-        else
-          result[k] = Marshal.load(Marshal.dump(v)) rescue v.dup
-        end
-      end
-      result
-    end
-    alias_method :inheritable_copy, :deep_copy
-
-    def deep_merge hash
-      do_deep_merge! hash, self.deep_copy
-    end
-
-    def deep_merge! hash
-      do_deep_merge! hash, self
+    # values override needed to ensure Deferreds get evaluated
+    def values
+      keys.collect { |k| self[k] }
     end
 
     def deferred! &block
@@ -140,15 +100,6 @@ module Confstruct
       Confstruct.i18n(key,&block)
     end
     
-    def inspect
-      r = self.keys.collect { |k| "#{k.inspect}=>#{self.fetch(k).inspect}" }
-      "{#{r.compact.join(', ')}}"
-    end
-    
-    def kind_of? klazz
-      @@hash_class.ancestors.include?(klazz) or super
-    end
-    alias_method :is_a?, :kind_of?
     
     def lookup! key_path, fallback = nil
       val = self
@@ -170,7 +121,7 @@ module Confstruct
       
       if name.to_s =~ /^add_(.+)!$/
         name = $1.to_sym
-        self[name] = [] unless self.has_key?(name)
+        self.assign_property(name, []) unless self.has_key?(name)
         unless self[name].is_a?(Array)
           raise TypeError, "Cannot #add! to a #{self[name].class}"
         end
@@ -178,17 +129,19 @@ module Confstruct
           local_args = args.collect { |a| structurize! a }
           result = self[name].push *local_args
         elsif block_given?
-          result = HashWithStructAccess.new(@@hash_class.new)
+          result = HashWithStructAccess.new
           self[name].push result
         end
       elsif args.length == 1
-        result = self[name] = args[0]
+        self.assign_property(name, args[0])
+        result = self[name]
       elsif args.length > 1
         super(sym,*args,&block)
       else
         result = self[name]
         if result.nil? and block_given?
-          result = self[name] = HashWithStructAccess.new(@@hash_class.new)
+          self.assign_property(name, HashWithStructAccess.new)
+          result = self[name]
         end
       end
       if block_given?
@@ -197,48 +150,5 @@ module Confstruct
       result
     end
     
-    def methods
-      key_methods = keys.collect do |k|
-        self[k].is_a?(Deferred) ? k.to_s : [k.to_s, "#{k}="]
-      end
-      super + key_methods.compact.flatten
-    end
-    
-    def ordered?
-      self.class.ordered?
-    end
-    
-    def respond_to? *args
-      super(*args) || keys.include?(symbolize!(args[0].to_s.sub(/=$/,'')))
-    end
-
-    def structurize! hash
-      self.class.structurize(hash)
-    end
-    
-    def symbolize! key
-      self.class.symbolize(key)
-    end
-       
-    def values
-     keys.collect { |k| self[k] }
-    end
-
-    protected 
-    def do_deep_merge! source, target
-      source.each_pair do |k,v|
-        if target.has_key?(k)
-          if v.respond_to?(:each_pair) and target[k].respond_to?(:merge)
-            do_deep_merge! v, target[k]
-          elsif v != target[k]
-            target[k] = v
-          end
-        else
-          target[k] = v
-        end
-      end
-      target
-    end
-
   end
 end

@@ -22,10 +22,10 @@ describe Confstruct::Configuration do
   context "default values" do
     before :all do
       @defaults = { 
-        :project => 'confstruct', 
-        :github => { 
-          :url => 'http://www.github.com/mbklein/confstruct',
-          :branch => 'master'
+        'project' => 'confstruct', 
+        'github' => { 
+          'url' => 'http://www.github.com/mbklein/confstruct',
+          'branch' => 'master'
         }
       }
     end
@@ -47,6 +47,7 @@ describe Confstruct::Configuration do
           branch 'master'
         end
       end
+
       config.default_values.should == @defaults
       config.should == @defaults
     end
@@ -55,18 +56,18 @@ describe Confstruct::Configuration do
   context "configuration" do
     before :all do
       @defaults = { 
-        :project => 'confstruct', 
-        :github => { 
-          :url => 'http://www.github.com/mbklein/confstruct',
-          :branch => 'master'
+        'project' => 'confstruct', 
+        'github' => { 
+          'url' => 'http://www.github.com/mbklein/confstruct',
+          'branch' => 'master'
         }
       }
       
       @configured = { 
-        :project => 'other-project', 
-        :github => { 
-          :url => 'http://www.github.com/mbklein/other-project',
-          :branch => 'master'
+        'project' => 'other-project', 
+        'github' => { 
+          'url' => 'http://www.github.com/mbklein/other-project',
+          'branch' => 'master'
         }
       }
     end
@@ -76,7 +77,8 @@ describe Confstruct::Configuration do
     end
     
     it "should deep merge a hash" do
-      @config.configure({ :project => 'other-project', :github => { :url => 'http://www.github.com/mbklein/other-project' } })
+      @config.configure({ 'project' => 'other-project', 'github' => { 'url' => 'http://www.github.com/mbklein/other-project' } })
+
       @config.should == @configured
     end
 
@@ -95,8 +97,27 @@ describe Confstruct::Configuration do
       end
       @config.should == @configured
     end
+
+    # Failed in Ruby 2.1 pre-Hashie base
+    it "should configure as a block with lambda" do
+      conf = Confstruct::Configuration.new
+      conf.configure do      
+        my_key lambda {|a| a}  
+      end 
+      conf.my_key.should be_kind_of(Proc)
+    end
+
+    it "should raise on reserved words in block mode" do    
+      conf = Confstruct::Configuration.new
+      expect do
+        conf.configure do      
+          inspect "inspect is reserved'"
+        end 
+      end.to raise_error(ArgumentError)
+    end
+
     
-    it "should save and restore state via #push! and #pop!" do
+    it "should save and restore state via #push! and #pop!" do   
       @config.push!({ :project => 'other-project', :github => { :url => 'http://www.github.com/mbklein/other-project' } })
       @configured.each_pair { |k,v| @config[k].should == v }
       @config.pop!

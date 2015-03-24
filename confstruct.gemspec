@@ -19,11 +19,13 @@ Gem::Specification.new do |s|
   if ::RUBY_VERSION < '1.9'
     s.add_development_dependency 'active_support'
   end
+
+  s.add_dependency "hashie", "~> 3.3"
   
   s.add_development_dependency "rake", ">=0.8.7"
   s.add_development_dependency "simplecov"
   s.add_development_dependency "rdoc"
-  s.add_development_dependency "rspec"
+  s.add_development_dependency "rspec", "~> 2.0"
   s.add_development_dependency "yard"
   
 end
