@@ -22,10 +22,10 @@ describe Confstruct::Configuration do
   context "default values" do
     before :all do
       @defaults = { 
-        'project' => 'confstruct', 
-        'github' => { 
-          'url' => 'http://www.github.com/mbklein/confstruct',
-          'branch' => 'master'
+        :project => 'confstruct', 
+        :github => { 
+          :url => 'http://www.github.com/mbklein/confstruct',
+          :branch => 'master'
         }
       }
     end
@@ -56,18 +56,18 @@ describe Confstruct::Configuration do
   context "configuration" do
     before :all do
       @defaults = { 
-        'project' => 'confstruct', 
-        'github' => { 
-          'url' => 'http://www.github.com/mbklein/confstruct',
-          'branch' => 'master'
+        :project => 'confstruct', 
+        :github => { 
+          :url => 'http://www.github.com/mbklein/confstruct',
+          :branch => 'master'
         }
       }
       
       @configured = { 
-        'project' => 'other-project', 
-        'github' => { 
-          'url' => 'http://www.github.com/mbklein/other-project',
-          'branch' => 'master'
+        :project => 'other-project', 
+        :github => { 
+          :url => 'http://www.github.com/mbklein/other-project',
+          :branch => 'master'
         }
       }
     end

@@ -39,7 +39,15 @@ module Confstruct
     attr_accessor :default_values
     @default_values = {}
     
-    
+    # Hashie::Mash normally standardizes all keys as strings
+    # We can override this method to standardize as symbols either,
+    # for backwards-compat with previous Confstruct. 
+    # Turns out changing this effects things like merges into ordinary hashes
+    # that client code might be doing, and makes a backward compat
+    # nightmare. 
+    def convert_key(key)
+      key.to_sym
+    end
 
     def self.from_hash(hash)
       self.new(hash)
