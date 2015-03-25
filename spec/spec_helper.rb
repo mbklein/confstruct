@@ -28,6 +28,6 @@ end
 
 RSpec::Matchers.define :match_indifferently do |expected|
   match do |actual|
-    IndifferentHashieHash.new(actual) ==  IndifferentHashieHash.new(expected)
+    IndifferentHashieHash.new(actual.to_hash) ==  IndifferentHashieHash.new(expected.to_hash)
   end
 end

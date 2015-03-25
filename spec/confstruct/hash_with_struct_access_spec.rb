@@ -170,7 +170,7 @@ describe Confstruct::HashWithStructAccess do
           psmith :chum
         end
       end
-      @hwsa.github.roles.should == [{'jeeves' => :valet}, {'wooster' => :dolt}, {'psmith' => :chum}]
+      @hwsa.github.roles.should == [{:jeeves => :valet}, {:wooster => :dolt}, {:psmith => :chum}]
       @hwsa.github.roles.first.jeeves.should == :valet
     end
     
