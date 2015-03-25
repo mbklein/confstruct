@@ -196,7 +196,8 @@ The pattern `add_$key!` can be used to add to or create an array.
 - <b>v0.2.5</b> - #14 #configure loses nested hashes somehow
 - <b>v0.2.6</b> - Fix test scoping issue under Ruby 2.1.0+
 - <b>v0.2.7</b> - Remove ActiveSupport for Ruby >= 1.9
-- <b>v1.0.0</b> - Refactor to use Hashie instead of reinventing all the Hash access stuff
+- <b>v1.0.0</b> - [YANKED] Refactor to use Hashie instead of reinventing all the Hash access stuff
+- <b>v1.0.1</b> - Switch back to symbolized keys internally
 
 ## Contributing to confstruct
 
