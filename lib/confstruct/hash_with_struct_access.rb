@@ -122,6 +122,14 @@ module Confstruct
       end
       return val
     end
+
+    def self.structurize hash
+      result = hash
+      if result.is_a?(Hash) and not result.is_a?(HashWithStructAccess)
+        result = HashWithStructAccess.new(result)
+      end
+      result
+    end
     
     def method_missing sym, *args, &block
       name = sym.to_s.chomp('=').to_sym
@@ -134,7 +142,7 @@ module Confstruct
           raise TypeError, "Cannot #add! to a #{self[name].class}"
         end
         if args.length > 0
-          local_args = args.collect { |a| structurize! a }
+          local_args = args.collect { |a| self.class.structurize a }
           result = self[name].push *local_args
         elsif block_given?
           result = HashWithStructAccess.new
