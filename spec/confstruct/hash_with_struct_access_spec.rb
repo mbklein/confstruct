@@ -4,8 +4,8 @@ describe Confstruct::HashWithStructAccess do
   
   it "should initialize empty" do
     hwsa = Confstruct::HashWithStructAccess.new
-    hwsa.is_a?(Hash).should be_true
-    hwsa.is_a?(Confstruct::HashWithStructAccess).should be_true
+    hwsa.is_a?(Hash).should be_truthy
+    hwsa.is_a?(Confstruct::HashWithStructAccess).should be_truthy
     hwsa.should == {}
   end
   
@@ -72,8 +72,8 @@ describe Confstruct::HashWithStructAccess do
     end
     
     it "should properly respond to #has?" do
-      @hwsa.has?('github.url').should be_true
-      @hwsa.has?('github.foo.bar.baz').should be_false
+      @hwsa.has?('github.url').should be_truthy
+      @hwsa.has?('github.foo.bar.baz').should be_falsey
     end
     
     it "should properly respond to #lookup!" do
@@ -204,9 +204,9 @@ describe Confstruct::HashWithStructAccess do
     end
     
     it "should only evaluate Confstruct::Deferred procs" do
-      @hwsa.github.regular_proc.is_a?(Proc).should be_true
-      @hwsa.github.upcase_url.is_a?(Proc).should be_false
-      @hwsa.github.reverse_url.is_a?(Proc).should be_false
+      @hwsa.github.regular_proc.is_a?(Proc).should be_truthy
+      @hwsa.github.upcase_url.is_a?(Proc).should be_falsey
+      @hwsa.github.reverse_url.is_a?(Proc).should be_falsey
     end
     
     it "should instance_eval the proc with no params" do
@@ -233,9 +233,9 @@ describe Confstruct::HashWithStructAccess do
         defproc deferred! { reverse_url + upcase_url }
         regproc Kernel.lambda { reverse_url + upcase_url }
       end
-      @hwsa.github.defproc.is_a?(Proc).should be_false
+      @hwsa.github.defproc.is_a?(Proc).should be_falsey
       @hwsa.github.defproc.should == @hwsa.github.reverse_url + @hwsa.github.upcase_url
-      @hwsa.github.regproc.is_a?(Proc).should be_true
+      @hwsa.github.regproc.is_a?(Proc).should be_truthy
     end
     
     it "should handle i18n translations" do
@@ -269,7 +269,7 @@ describe Confstruct::HashWithStructAccess do
     end
 
     it "should gracefully handle being extended" do
-      pending %{probably won't fix due to the unpredictable way ActiveSupport injects #presence()}
+      skip %{probably won't fix due to the unpredictable way ActiveSupport injects #presence()}
       @hwsa.a.b.presence.should be_a Confstruct::HashWithStructAccess
     end
   end

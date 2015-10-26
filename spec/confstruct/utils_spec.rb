@@ -1,8 +1,8 @@
 require File.expand_path(File.dirname(__FILE__) + '/../spec_helper')
 
 describe "Kernel.eval_or_yield" do
-  before :all do
-    @obj = RSpec::Mocks::Mock.new('obj')
+  before :each do
+    @obj = double('obj')
   end
   
   it "should instance_eval when the block takes no params" do

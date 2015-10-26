@@ -25,7 +25,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency "rake", ">=0.8.7"
   s.add_development_dependency "simplecov"
   s.add_development_dependency "rdoc"
-  s.add_development_dependency "rspec", "~> 2.0"
+  s.add_development_dependency "rspec", "~> 2.99"
   s.add_development_dependency "yard"
   
 end

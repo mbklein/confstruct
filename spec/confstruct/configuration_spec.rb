@@ -4,16 +4,16 @@ describe Confstruct::Configuration do
 
   it "should initialize empty" do
     conf = Confstruct::Configuration.new
-    conf.is_a?(Hash).should be_true
-    conf.is_a?(Confstruct::Configuration).should be_true
+    conf.is_a?(Hash).should be_truthy
+    conf.is_a?(Confstruct::Configuration).should be_truthy
     conf.should == {}
   end
   
   it "should initialize properly from a nested hash with string keys" do
     x = { 'a' => { 'b' => 'c' } }
     conf = Confstruct::Configuration.new(x)
-    conf.is_a?(Hash).should be_true
-    conf.is_a?(Confstruct::Configuration).should be_true
+    conf.is_a?(Hash).should be_truthy
+    conf.is_a?(Confstruct::Configuration).should be_truthy
     conf[:a][:b].should == 'c'
     conf['a']['b'].should == 'c'
     conf.a.b.should == 'c'
@@ -137,7 +137,7 @@ describe Confstruct::Configuration do
     end
     
     it "should call #after_config! when configuration is complete" do
-      postconfigurator = RSpec::Mocks::Mock.new('after_config!')
+      postconfigurator = double('after_config!')
       postconfigurator.should_receive(:configured!).once.with(@config)
       def @config.after_config! obj
         obj.project.should == 'other-project'
