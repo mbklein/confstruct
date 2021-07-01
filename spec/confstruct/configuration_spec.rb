@@ -138,7 +138,7 @@ describe Confstruct::Configuration do
     
     it "should call #after_config! when configuration is complete" do
       postconfigurator = double('after_config!')
-      postconfigurator.should_receive(:configured!).once.with(@config)
+      expect(postconfigurator).to receive(:configured!).once.with(@config)
       def @config.after_config! obj
         obj.project.should == 'other-project'
         obj.mock.configured!(obj)

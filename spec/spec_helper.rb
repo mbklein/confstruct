@@ -3,7 +3,6 @@ $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
 
 require 'bundler/setup'
 require 'rspec'
-require 'rspec/autorun'
 
 require 'rubygems'
 require 'confstruct'
@@ -12,7 +11,10 @@ require 'simplecov'
 SimpleCov.start
 
 RSpec.configure do |config|
-  
+  config.expect_with :rspec do |expectations|
+    # our specs written a long time ago still use :should syntax
+    expectations.syntax = [:should, :expect]
+  end
 end
 
 
