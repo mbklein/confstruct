@@ -241,8 +241,8 @@ describe Confstruct::HashWithStructAccess do
     it "should handle i18n translations" do
       t = Time.now
       I18n = RSpec::Mocks::Double.new('I18n')
-      I18n.should_receive(:translate).with('Hello, World!').at_least(:once).and_return('Bonjour, Monde!')
-      I18n.should_receive(:localize).with(t).at_least(:once).and_return('French Time!')
+      expect(I18n).to receive(:translate).with('Hello, World!').at_least(:once).and_return('Bonjour, Monde!')
+      expect(I18n).to receive(:localize).with(t).at_least(:once).and_return('French Time!')
       @hwsa.github do
         hello 'Hello, World!'
         time t
