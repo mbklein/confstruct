@@ -6,20 +6,20 @@ describe "Kernel.eval_or_yield" do
   end
   
   it "should instance_eval when the block takes no params" do
-    expect(@obj).to receive(:test).and_return('OK')
+    expect(@obj).to receive(:test_method).and_return('OK')
     eval_or_yield(@obj) {
       self.should_not == @obj
-      self.test.should == 'OK'
+      self.test_method.should == 'OK'
     }
   end
   
   it "should yield when the block takes a param" do
-    expect(@obj).to receive(:test).and_return('OK')
+    expect(@obj).to receive(:test_method).and_return('OK')
     eval_or_yield(@obj) { |o|
       self.should_not == @obj
       o.should == @obj
-      lambda { self.test }.should raise_error(NoMethodError)
-      o.test.should == 'OK'
+      lambda { self.test_method }.should raise_error(NoMethodError)
+      o.test_method.should == 'OK'
     }
   end
   
