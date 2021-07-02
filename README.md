@@ -198,6 +198,7 @@ The pattern `add_$key!` can be used to add to or create an array.
 - <b>v0.2.7</b> - Remove ActiveSupport for Ruby >= 1.9
 - <b>v1.0.0</b> - [YANKED] Refactor to use Hashie instead of reinventing all the Hash access stuff
 - <b>v1.0.1</b> - Switch back to symbolized keys internally
+- <b>v1.1.0</b> - Include support for Hashie 4, Rspec 3, and Ruby 2.7
 
 ## Contributing to confstruct
 
