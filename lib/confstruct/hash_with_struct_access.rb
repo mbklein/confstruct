@@ -111,7 +111,7 @@ module Confstruct
     
     def lookup! key_path, fallback = nil
       val = self
-      keys = key_path.split(/\./)
+      keys = key_path.to_s.split(/\./)
       keys.each do |key|
         return fallback if val.nil?
         if val.respond_to?(:has_key?) and val.has_key?(key.to_sym)
